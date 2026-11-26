@@ -19,4 +19,4 @@ Each line starts with `[ OK ]` or `[WARN]`, and the last line gives the number o
 
 ## Testing status
 - The script passes `bash -n` (syntax check).
-- It has not been run on a RHEL-family system yet. It was checked on another Linux system, where the RHEL-only checks (SELinux, firewalld) report as not found.
+- Run on a real RHEL-family system by the author. It worked as expected.
