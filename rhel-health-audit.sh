@@ -42,15 +42,14 @@
 #    ./rhel-health-audit.sh -s disk,selinux -t 90
 #
 #  TESTING STATUS
-#    Syntax checked (bash -n) and run on Ubuntu 22.04, where the RHEL-only
-#    checks correctly report "not installed". Not yet tested on a real
-#    RHEL-family system. Training project, see README.md.
+#    Syntax checked (bash -n) and run on a real RHEL system by the author.
+#    Training project, see README.md.
 # ============================================================================
 
 set -u
 set -o pipefail
 
-VERSION="1.1"
+VERSION="1.2"
 OUT_DIR="./audit-reports"
 DISK_WARN=80
 SECTIONS="system,cpu_mem,disk,users,services,network,firewall,selinux,updates,ssh,logs"
