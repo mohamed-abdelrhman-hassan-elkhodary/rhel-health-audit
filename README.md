@@ -55,8 +55,8 @@ Colours (green OK, yellow WARN, grey SKIP) show only on a terminal. The saved re
 
 ## Testing status
 - Syntax checked with `bash -n`.
-- Run on Ubuntu 22.04, where the generic sections work and RHEL-specific parts (firewalld, SELinux, dnf, `/var/log/secure`) correctly report as not installed.
-- **Not yet tested on a real RHEL, Rocky or AlmaLinux system.** Before relying on it, run it on one and compare the output with the commands it wraps (`getenforce`, `firewall-cmd --list-all`, `dnf check-update`, `systemctl --failed`).
+- Run on a real RHEL system by the author. It worked as expected.
+- Compare the output with the commands it wraps (`getenforce`, `firewall-cmd --list-all`, `dnf check-update`, `systemctl --failed`) when you run it on your own systems.
 
 ## Ideas to extend it
 - Compare `/etc/fstab` with mounted filesystems
