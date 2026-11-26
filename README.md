@@ -1,65 +1,32 @@
-# RHEL Health Audit (Bash)
+# RHEL Health Check
 
-A read-only health and security audit script for RHEL-family servers (RHEL, Rocky, AlmaLinux, CentOS Stream, Fedora). It checks 11 areas, prints a colour-coded result, saves a plain-text report, and ends with a per-section summary table.
+Two read-only Bash scripts that check the health and basic security of a RHEL-family server (RHEL, Rocky, AlmaLinux). Neither changes anything on the system. This is a training project from my RHCSA study and Linux/Bash practice, not a production monitoring tool.
 
-This is a training project from my RHCSA study and Linux/Bash practice. It is not a production monitoring tool.
-
-## Design rules
-1. **Read-only.** No installs, restarts, edits or deletes. The only file it writes is its own report.
-2. **Safe without root.** Checks that need root are skipped and labelled `[SKIP]`.
-3. **Every finding maps to a standard command** (`df`, `ss`, `getenforce`, `firewall-cmd`, `dnf`, `sshd -T`, `journalctl`), so each result can be checked by hand.
-4. **Automation friendly.** Exit code `0` = no warnings, `1` = warnings, `2` = usage error. Usable from cron or CI.
-
-## What it checks
-| Section | Checks |
+| Script | What it is |
 |---|---|
-| system | OS, kernel, uptime, NTP sync, reboot needed |
-| cpu_mem | core count vs load average, memory use, swap, top processes |
-| disk | filesystem and inode use against a threshold, block devices, LVM |
-| users | login shells, extra UID 0 accounts, wheel members, empty passwords, recent logins |
-| services | failed systemd units, status of sshd, chronyd, firewalld, auditd, crond, rsyslog |
-| network | addresses, routes, DNS, listening sockets, default gateway ping |
-| firewall | firewalld running state, default zone, rules |
-| selinux | current mode, configured mode, AVC denials today |
-| updates | pending updates and security advisories (dnf/yum) |
-| ssh | root login, password authentication, empty passwords, port |
-| logs | error-level journal entries in the last 24h, failed SSH logins |
+| `rhel-health-check.sh` | Simple version, 120 lines, 5 sections |
+| `rhel-health-audit.sh` | Advanced version, 11 sections, colour output, summary table, options |
 
-## Usage
+## Simple version: rhel-health-check.sh
+Run it:
 ```bash
-chmod +x rhel-health-audit.sh
-./rhel-health-audit.sh -n                 # dry run, shows what would be checked
-./rhel-health-audit.sh                    # full audit as a normal user
-sudo ./rhel-health-audit.sh               # full audit including root-only checks
-./rhel-health-audit.sh -s disk,selinux    # only some sections
-./rhel-health-audit.sh -t 90 -o /tmp/rep  # 90% threshold, custom report folder
-./rhel-health-audit.sh -q                 # write the report only
-./rhel-health-audit.sh -C                 # no colour
-./rhel-health-audit.sh -V                 # version
+chmod +x rhel-health-check.sh
+./rhel-health-check.sh        # use sudo to also read the SSH config
 ```
 
-## Example summary (from a test run, no root)
-```
-=== Summary ===
-Section         OK  INFO  WARN  SKIP
--------        ---  ----  ----  ----
-System           1     5     0     0
-CPU              2     2     0     0
-Disk             1     0     0     0
-Users            1     2     0     1
-Services         1     4     2     0
-...
-Result: 3 warning(s). Review the [WARN] lines above.
-```
-Colours (green OK, yellow WARN, grey SKIP) show only on a terminal. The saved report is always plain text.
+Sections:
+1. **System**: host name, uptime, kernel, OS name
+2. **Disk usage**: warns when a filesystem is 80% full or more
+3. **Memory and CPU load**: warns when memory use is 90% or more, or the 1-minute load is higher than the number of cores
+4. **Services**: failed services, and whether `sshd`, `chronyd` and `firewalld` are running
+5. **Security**: SELinux mode, firewalld state, and whether SSH allows root login
+
+Each line starts with `[ OK ]` or `[WARN]`, and the last line gives the number of warnings. The limits are two variables at the top of the script.
+
+## Advanced version: rhel-health-audit.sh
+The longer version with more checks and options. Run `./rhel-health-audit.sh -h` for the options.
 
 ## Testing status
-- Syntax checked with `bash -n`.
-- Run on a real RHEL system by the author. It worked as expected.
-- Compare the output with the commands it wraps (`getenforce`, `firewall-cmd --list-all`, `dnf check-update`, `systemctl --failed`) when you run it on your own systems.
-
-## Ideas to extend it
-- Compare `/etc/fstab` with mounted filesystems
-- Report sudoers entries and world-writable files
-- JSON output
-- Email the report
+- Both scripts pass `bash -n` (syntax check).
+- The advanced version `rhel-health-audit.sh` was run on a real RHEL system by the author and worked as expected.
+- The simple version `rhel-health-check.sh` has not been run on a RHEL-family system yet. It was checked on another Linux system, where the RHEL-only checks (SELinux, firewalld) report as not found.
